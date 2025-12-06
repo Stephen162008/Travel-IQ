@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel IQ | Intelligent Planner</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        primary: '#3b82f6', 
+                        darkBase: '#0f172a',
+                        darkSurface: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .iq-card { transition: background 0.3s, border-color 0.3s, box-shadow 0.3s; }
+
+        /* Light Mode */
+        body { background-color: #f8fafc; color: #1e293b; }
+        .iq-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Dark Mode */
+        .dark body { background-color: #0f172a; color: #e2e8f0; }
+        .dark .iq-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .iq-gradient { background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); }
+        
+        #map { width: 100%; height: 100%; border-radius: 1rem; z-index: 1; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        .typing-dot { animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden selection:bg-blue-500 selection:text-white">
+
+    <aside class="w-20 lg:w-64 flex flex-col justify-between bg-white dark:bg-darkSurface border-r border-slate-200 dark:border-slate-700 z-20 shadow-sm transition-colors">
+        <div>
+            <div class="h-20 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-100 dark:border-slate-700">
+                <div class="w-10 h-10 rounded-xl iq-gradient flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-brain text-lg"></i>
+                </div>
+                <div class="ml-3 hidden lg:block">
+                    <h1 class="font-bold text-xl tracking-tight text-slate-800 dark:text-white">Travel IQ</h1>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">PRO EDITION</p>
+                </div>
+            </div>
+            
+            <nav class="mt-8 px-3 space-y-2">
+                <a href="#" class="flex items-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-100 dark:border-blue-800/50">
+                    <i class="fa-solid fa-compass text-lg w-6 text-center"></i>
+                    <span class="ml-3 hidden lg:block">Planner</span>
+                </a>
+                <a href="#" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                    <i class="fa-solid fa-hotel text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+                    <span class="ml-3 hidden lg:block">Hotels</span>
+                </a>
+                <a href="#" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                    <i class="fa-solid fa-wallet text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+                    <span class="ml-3 hidden lg:block">Budget</span>
+                </a>
+            </nav>
+        </div>
+        
+        <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-600">
+                <div class="hidden lg:block">
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Traveler</p>
+                    <p class="text-xs text-green-500 font-semibold">● Online</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative h-full bg-[#f8fafc] dark:bg-darkBase transition-colors">
+        
+        <header class="h-16 flex items-center justify-between px-6 bg-white/80 dark:bg-darkSurface/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
+            <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot text-blue-500"></i> Trip Dashboard
+            </h2>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+                
+                <span class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> GEMINI 2.5 PRO
+                </span>
+            </div>
+        </header>
+
+        <div class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+            
+            <div class="lg:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
+                <div class="flex-1 iq-card rounded-2xl flex flex-col overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Assistant</span>
+                        <button onclick="clearChat()" class="text-slate-400 hover:text-red-500 text-xs font-bold transition">RESET</button>
+                    </div>
+
+                    <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-darkSurface">
+                        <div class="flex items-start gap-3 fade-in">
+                            <div class="w-8 h-8 rounded-lg iq-gradient flex items-center justify-center text-white text-xs shrink-0 shadow-md"><i class="fa-solid fa-brain"></i></div>
+                            <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                Hi! I'm Travel IQ. I can find hotels with prices and plan navigation routes. Where to? 🌍
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white dark:bg-darkSurface border-t border-slate-100 dark:border-slate-700 relative">
+                        <form id="chat-form" class="relative z-10">
+                            <input type="text" id="user-input" placeholder="Ex: Plan a trip to Paris..." 
+                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-white transition">
+                            <button type="submit" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="intelligence-panel" class="h-40 iq-card rounded-2xl p-4 hidden flex-col gap-2 overflow-y-auto"></div>
+            </div>
+
+            <div class="lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden">
+                <div class="flex-1 bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group">
+                    <div id="map"></div>
+                    <div id="weather-card" class="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-4 py-2 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 z-[400] hidden fade-in">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-50 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-500"><i class="fa-solid fa-sun text-xl"></i></div>
+                            <div><p class="text-xs text-slate-400 font-bold uppercase">Forecast</p><p class="text-sm font-bold text-slate-700 dark:text-white">Loading...</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-64 bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
+                    <div class="px-6 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                        <div class="flex gap-2">
+                            <button onclick="switchTab('activities')" id="tab-activities" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition"><i class="fa-solid fa-person-hiking mr-2"></i>Experiences</button>
+                            <button onclick="switchTab('hotels')" id="tab-hotels" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-bed mr-2"></i>Nearby Hotels</button>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-mono hidden sm:block">AI GENERATED</span>
+                    </div>
+                    
+                    <div id="cards-container" class="flex-1 flex items-center gap-4 px-6 overflow-x-auto pb-2 pt-2">
+                        <div class="w-full flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
+                            <i class="fa-solid fa-map-location-dot text-4xl mb-2"></i>
+                            <p class="text-sm font-medium">Ready to plan your journey</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. CONFIGURATION
+        // ==========================================
+        // 🔴 PASTE YOUR API KEY HERE
+        const GEMINI_API_KEY = "AIzaSyDPhhboUoNxgcVyXuHBf-ijeKFm1l1lEqo"; 
+
+        let currentItinerary = [];
+        let currentHotels = [];
+
+        // ==========================================
+        // 2. THEME & MAP
+        // ==========================================
+        const map = L.map('map').setView([20.5937, 78.9629], 4);
+        let tileLayer;
+        const lightTiles = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+        const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
+        function setMapTheme(isDark) {
+            if(tileLayer) map.removeLayer(tileLayer);
+            tileLayer = L.tileLayer(isDark ? darkTiles : lightTiles, { attribution: '&copy; OpenStreetMap', maxZoom: 19 }).addTo(map);
+        }
+        setMapTheme(false);
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon';
+                setMapTheme(false);
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun';
+                setMapTheme(true);
+            }
+        }
+
+        let currentMarker = null;
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatContainer = document.getElementById('chat-container');
+        const cardsContainer = document.getElementById('cards-container');
+        const intPanel = document.getElementById('intelligence-panel');
+        const weatherCard = document.getElementById('weather-card');
+
+        // ==========================================
+        // 3. AI LOGIC (PRICING + ROUTING)
+        // ==========================================
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if(!text) return;
+
+            addMessage(text, 'user');
+            userInput.value = '';
+            showTyping();
+
+            try {
+                if(GEMINI_API_KEY.includes("PASTE")) throw new Error("API Key missing.");
+
+                const aiData = await getGeminiResponse(text);
+                removeTyping();
+
+                if (aiData.location && aiData.location.lat) {
+                    updateMap(aiData.location);
+                    weatherCard.classList.remove('hidden');
+                }
+
+                addMessage(aiData.reply, 'ai');
+                currentItinerary = aiData.itinerary || [];
+                currentHotels = aiData.hotels || [];
+                switchTab('activities'); 
+
+                if (aiData.packing_list) renderWidgets(aiData);
+
+            } catch (error) {
+                removeTyping();
+                addMessage(`⚠️ Error: ${error.message}`, 'ai');
+            }
+        });
+
+        async function getGeminiResponse(prompt) {
+            const MODEL_NAME = "gemini-2.5-pro"; 
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
+            
+            // 🔥 Updated Prompt for Pricing
+            const systemPrompt = `
+                You are Travel IQ. Return JSON only.
+                Structure:
+                {
+                    "reply": "Friendly response.",
+                    "location": { "lat": 12.34, "lng": 56.78, "name": "City Name" },
+                    "packing_list": ["Item 1", "Item 2"],
+                    "itinerary": [
+                        { "title": "Place Name", "price": "₹500 / $10", "tag": "Visit", "desc": "Short desc" }
+                    ],
+                    "hotels": [
+                        { "title": "Hotel Name", "price": "₹4000 / $50", "tag": "Hotel", "desc": "Amenities" }
+                    ]
+                }
+                IMPORTANT: Give REALISTIC PRICES for the specific location in local currency.
+            `;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt + "\n\nUser Input: " + prompt }] }] })
+            });
+
+            const data = await response.json();
+            if(data.error) throw new Error(data.error.message);
+            let raw = data.candidates[0].content.parts[0].text;
+            return JSON.parse(raw.replace(/```json/g, '').replace(/```/g, '').trim());
+        }
+
+        // ==========================================
+        // 4. ROUTING FUNCTION (GPS)
+        // ==========================================
+        function openRoute(destinationName) {
+            // 1. Try to get user location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        // Google Maps Direction URL
+                        const url = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${encodeURIComponent(destinationName)}&travelmode=driving`;
+                        window.open(url, '_blank');
+                    },
+                    (error) => {
+                        alert("Location access denied. Opening search instead.");
+                        // Fallback: Just search for the place
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destinationName)}`, '_blank');
+                    }
+                );
+            } else {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destinationName)}`, '_blank');
+            }
+        }
+
+        // ==========================================
+        // 5. RENDER CARDS (With Route Button)
+        // ==========================================
+        function switchTab(tab) {
+            const btnAct = document.getElementById('tab-activities');
+            const btnHot = document.getElementById('tab-hotels');
+            const activeClass = "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
+            const inactiveClass = "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800";
+            
+            if(tab === 'activities') {
+                btnAct.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${activeClass}`;
+                btnHot.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${inactiveClass}`;
+                renderCards(currentItinerary, 'activity');
+            } else {
+                btnHot.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${activeClass}`;
+                btnAct.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${inactiveClass}`;
+                renderCards(currentHotels, 'hotel');
+            }
+        }
+
+        function renderCards(items, type) {
+            if(!items || items.length === 0) {
+                cardsContainer.innerHTML = `<div class="w-full text-center text-slate-400 text-sm">No data found. Try asking for a plan!</div>`;
+                return;
+            }
+
+            let html = '';
+            items.forEach((item, i) => {
+                let icon = type === 'hotel' ? 'fa-bed' : 'fa-camera';
+                let colorClass = type === 'hotel' ? 'text-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'text-blue-600 bg-blue-50 dark:bg-blue-900/20';
+
+                html += `
+                <div class="min-w-[280px] bg-white dark:bg-darkSurface border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:shadow-lg transition cursor-pointer group fade-in" style="animation-delay: ${i*100}ms">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-10 h-10 rounded-lg ${colorClass} flex items-center justify-center"><i class="fa-solid ${icon}"></i></div>
+                        <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-1 rounded uppercase tracking-wide">${item.tag}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate">${item.title}</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${item.desc}</p>
+                    
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-sm bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-green-600 dark:text-green-400">
+                            ${item.price}
+                        </span>
+                        
+                        <button onclick="openRoute('${item.title}')" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow-md shadow-blue-500/20">
+                            <i class="fa-solid fa-location-arrow"></i> Route
+                        </button>
+                    </div>
+                </div>`;
+            });
+            cardsContainer.innerHTML = html;
+        }
+
+        // Helpers
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `flex items-start gap-3 fade-in ${sender === 'user' ? 'flex-row-reverse' : ''}`;
+            const bubble = sender === 'ai'
+                ? `bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 shadow-sm`
+                : `bg-blue-600 text-white shadow-md shadow-blue-500/20`;
+            div.innerHTML = `<div class="w-8 h-8 rounded-lg ${sender==='ai'?'iq-gradient':'bg-slate-200 dark:bg-slate-700'} flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid ${sender==='ai'?'fa-brain':'fa-user'}"></i></div><div class="${bubble} p-3 rounded-2xl ${sender==='user'?'rounded-tr-none':'rounded-tl-none'} text-sm max-w-[85%]">${text}</div>`;
+            chatContainer.appendChild(div); chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function renderWidgets(data) {
+            intPanel.classList.remove('hidden'); intPanel.classList.add('flex');
+            intPanel.innerHTML = `<h4 class="text-xs font-bold text-slate-400 uppercase mb-1 sticky top-0 bg-white dark:bg-darkSurface z-10">Trip Intelligence</h4>`;
+            if(data.packing_list) intPanel.innerHTML += `<div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-3 rounded-xl text-sm text-indigo-900 dark:text-indigo-200"><div class="font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-suitcase"></i> Smart Packing</div><ul class="text-xs space-y-1 pl-1">${data.packing_list.map(i => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500 text-xs"></i> ${i}</li>`).join('')}</ul></div>`;
+        }
+
+        function updateMap(loc) {
+            map.flyTo([loc.lat, loc.lng], 13, { duration: 2 });
+            if(currentMarker) map.removeLayer(currentMarker);
+            currentMarker = L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`<b class="text-slate-800">${loc.name}</b>`).openPopup();
+        }
+
+        function showTyping() {
+            const div = document.createElement('div'); div.id = 'typing'; div.className = 'flex items-start gap-3 fade-in';
+            div.innerHTML = `<div class="w-8 h-8 rounded-lg iq-gradient flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-brain"></i></div><div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none flex gap-1.5 shadow-sm"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div><div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div><div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div></div>`;
+            chatContainer.appendChild(div); chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTyping() { const el = document.getElementById('typing'); if(el) el.remove(); }
+        function clearChat() { chatContainer.innerHTML = ''; addMessage("System Ready. Where to? 🚀", 'ai'); intPanel.innerHTML = ''; intPanel.classList.add('hidden'); }
+    </script>
+</body>
+</html>
