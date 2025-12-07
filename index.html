@@ -34,7 +34,7 @@
         /* Light Mode */
         body { background-color: #f8fafc; color: #1e293b; }
         .iq-card {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(14, 106, 149, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -63,152 +63,549 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* Smooth modal animation */
+        .modal-panel {
+            transform-origin: center;
+            animation: modalIn 0.25s ease-out;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Card hover animation */
+        .card-fade {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+        .card-fade:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden selection:bg-blue-500 selection:text-white">
 
-    <aside class="w-20 lg:w-64 flex flex-col justify-between bg-white dark:bg-darkSurface border-r border-slate-200 dark:border-slate-700 z-20 shadow-sm transition-colors">
-        <div>
-            <div class="h-20 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-100 dark:border-slate-700">
-                <div class="w-10 h-10 rounded-xl iq-gradient flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-brain text-lg"></i>
-                </div>
-                <div class="ml-3 hidden lg:block">
-                    <h1 class="font-bold text-xl tracking-tight text-slate-800 dark:text-white">Travel IQ</h1>
-                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">PRO EDITION</p>
-                </div>
-            </div>
-            
-            <nav class="mt-8 px-3 space-y-2">
-                <a href="#" class="flex items-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-100 dark:border-blue-800/50">
-                    <i class="fa-solid fa-compass text-lg w-6 text-center"></i>
-                    <span class="ml-3 hidden lg:block">Planner</span>
-                </a>
-                <a href="#" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
-                    <i class="fa-solid fa-hotel text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
-                    <span class="ml-3 hidden lg:block">Hotels</span>
-                </a>
-                <a href="#" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
-                    <i class="fa-solid fa-wallet text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
-                    <span class="ml-3 hidden lg:block">Budget</span>
-                </a>
-            </nav>
-        </div>
+    <!-- ========================= -->
+    <!-- LOGIN SCREEN WITH CAPTCHA -->
+    <!-- ========================= -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900">
+        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#ffffff33,_transparent_60%)]"></div>
         
-        <div class="p-4 border-t border-slate-100 dark:border-slate-700">
-            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-                <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-600">
-                <div class="hidden lg:block">
-                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Traveler</p>
-                    <p class="text-xs text-green-500 font-semibold">● Online</p>
+        <div class="modal-panel relative w-full max-w-md mx-4 bg-white/95 rounded-2xl shadow-2xl border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl iq-gradient flex items-center justify-center text-white shadow-lg shadow-blue-500/40">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-800">Travel IQ</h1>
+                    <p class="text-[11px] text-slate-500 uppercase tracking-[0.18em] font-semibold">AI TRAVEL CONSOLE</p>
                 </div>
             </div>
-        </div>
-    </aside>
 
-    <main class="flex-1 flex flex-col relative h-full bg-[#f8fafc] dark:bg-darkBase transition-colors">
-        
-        <header class="h-16 flex items-center justify-between px-6 bg-white/80 dark:bg-darkSurface/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
-            <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-                <i class="fa-solid fa-location-dot text-blue-500"></i> Trip Dashboard
-            </h2>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
-                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+            <p class="text-xs text-slate-500 mb-4">
+                Login to access your AI-powered travel planner, budget assistant, translator and local guides.
+            </p>
+
+            <form id="login-form" class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email / Username</label>
+                    <input id="login-username" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="you@example.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                    <input id="login-password" type="password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="••••••••">
+                </div>
+
+                <!-- Captcha -->
+                <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide flex items-center gap-1">
+                            <i class="fa-solid fa-robot text-slate-500"></i>
+                            Captcha Verification
+                        </span>
+                        <button type="button" id="captcha-refresh" class="text-[11px] text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-right"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="px-3 py-2 rounded-lg bg-white border border-slate-200 font-mono text-sm text-slate-800">
+                            <span id="captcha-question">0 + 0 = ?</span>
+                        </div>
+                        <input id="captcha-answer" type="number" class="flex-1 rounded-lg border border-slate-200 px-2 py-2 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Your answer">
+                    </div>
+                </div>
+
+                <p id="login-error" class="text-[11px] text-red-500 min-h-[16px]"></p>
+
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-500/30">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Login to Dashboard
                 </button>
-                
-                <span class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
-                    <i class="fa-solid fa-microchip"></i> GEMINI 2.5 PRO
-                </span>
-            </div>
-        </header>
+            </form>
 
-        <div class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+            <p class="mt-3 text-[11px] text-slate-400 text-center">
+                Demo only – any username & password works, captcha is required.
+            </p>
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- MAIN APP (HIDDEN UNTIL LOGIN) -->
+    <!-- ========================= -->
+    <div id="app-root" class="flex flex-1 h-screen w-full overflow-hidden hidden">
+
+        <!-- SIDEBAR -->
+        <aside class="w-20 lg:w-64 flex flex-col justify-between bg-white dark:bg-darkSurface border-r border-slate-200 dark:border-slate-700 z-20 shadow-sm transition-colors">
+            <div>
+                <div class="h-20 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-100 dark:border-slate-700">
+                    <div class="w-10 h-10 rounded-xl iq-gradient flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-brain text-lg"></i>
+                    </div>
+                    <div class="ml-3 hidden lg:block">
+                        <h1 class="font-bold text-xl tracking-tight text-slate-800 dark:text-white">Travel IQ</h1>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">PRO EDITION</p>
+                    </div>
+                </div>
+                
+                <nav class="mt-8 px-3 space-y-2">
+                    <!-- Planner -->
+                    <a href="#" class="flex items-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-100 dark:border-blue-800/50">
+                        <i class="fa-solid fa-compass text-lg w-6 text-center"></i>
+                        <span class="ml-3 hidden lg:block">Planner</span>
+                    </a>
+
+                    <!-- Hotels -->
+                    <a href="#" id="nav-hotels" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                        <i class="fa-solid fa-hotel text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+                        <span class="ml-3 hidden lg:block">Hotels</span>
+                    </a>
+
+                    <!-- Budget -->
+                    <a href="#" id="nav-budget" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                        <i class="fa-solid fa-wallet text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+                        <span class="ml-3 hidden lg:block">Budget</span>
+                    </a>
+
+                    <!-- Translator icon -->
+                    <a href="#" id="nav-translator" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                        <i class="fa-solid fa-brain text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+                        <span class="ml-3 hidden lg:block">Translator</span>
+                    </a>
+
+                    <!-- Guide service -->
+                    <a href="#" id="nav-guides" class="flex items-center p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                        <i class="fa-solid fa-person-hiking text-lg w-6 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+                        <span class="ml-3 hidden lg:block">guide service</span>
+                    </a>
+                </nav>
+            </div>
             
-            <div class="lg:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
-                <div class="flex-1 iq-card rounded-2xl flex flex-col overflow-hidden shadow-sm">
-                    <div class="p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Assistant</span>
-                        <button onclick="clearChat()" class="text-slate-400 hover:text-red-500 text-xs font-bold transition">RESET</button>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                    <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-600">
+                    <div class="hidden lg:block">
+                        <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Traveler</p>
+                        <p class="text-xs text-green-500 font-semibold">● Online</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="flex-1 flex flex-col relative h-full bg-[#f8fafc] dark:bg-darkBase transition-colors">
+            
+            <header class="h-16 flex items-center justify-between px-6 bg-white/80 dark:bg-darkSurface/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
+                <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-blue-500"></i> Trip Dashboard
+                </h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
+                        <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    </button>
+                    
+                    <span class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
+                        <i class="fa-solid fa-moon"></i> Team Aura
+                    </span>
+                </div>
+            </header>
+
+            <div class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+                
+                <!-- LEFT: CHAT -->
+                <div class="lg:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
+                    <div class="flex-1 iq-card rounded-2xl flex flex-col overflow-hidden shadow-sm">
+                        <div class="p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Assistant</span>
+                            <button onclick="clearChat()" class="text-slate-400 hover:text-red-500 text-xs font-bold transition">RESET</button>
+                        </div>
+
+                        <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-darkSurface">
+                            <div class="flex items-start gap-3 fade-in">
+                                <div class="w-8 h-8 rounded-lg iq-gradient flex items-center justify-center text-white text-xs shrink-0 shadow-md"><i class="fa-solid fa-brain"></i></div>
+                                <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                    Hi! I'm Travel IQ. I can find hotels with prices, estimate budgets, translate languages and show local guides. Where to? 🌍
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white dark:bg-darkSurface border-t border-slate-100 dark:border-slate-700 relative">
+                            <form id="chat-form" class="relative z-10">
+                                <input type="text" id="user-input" placeholder="Ex: Plan a trip to Paris..." 
+                                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-white transition">
+                                <button type="submit" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
-                    <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-darkSurface">
-                        <div class="flex items-start gap-3 fade-in">
-                            <div class="w-8 h-8 rounded-lg iq-gradient flex items-center justify-center text-white text-xs shrink-0 shadow-md"><i class="fa-solid fa-brain"></i></div>
-                            <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                Hi! I'm Travel IQ. I can find hotels with prices and plan navigation routes. Where to? 🌍
+                    <div id="intelligence-panel" class="h-40 iq-card rounded-2xl p-4 hidden flex-col gap-2 overflow-y-auto"></div>
+                </div>
+
+                <!-- RIGHT: MAP + CARDS + REVIEWS -->
+                <div class="lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden">
+                    <div class="flex-1 bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group">
+                        <div id="map"></div>
+                        <div id="weather-card" class="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-4 py-2 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 z-[400] hidden fade-in">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-orange-50 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-500"><i class="fa-solid fa-sun text-xl"></i></div>
+                                <div><p class="text-xs text-slate-400 font-bold uppercase">Forecast</p><p class="text-sm font-bold text-slate-700 dark:text-white">Loading...</p></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-4 bg-white dark:bg-darkSurface border-t border-slate-100 dark:border-slate-700 relative">
-                        <form id="chat-form" class="relative z-10">
-                            <input type="text" id="user-input" placeholder="Ex: Plan a trip to Paris..." 
-                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-white transition">
-                            <button type="submit" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md">
-                                <i class="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </form>
+                    <!-- EXPERIENCES / HOTELS CARDS -->
+                    <div class="h-64 bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
+                        <div class="px-6 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                            <div class="flex gap-2">
+                                <button onclick="switchTab('activities')" id="tab-activities" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition"><i class="fa-solid fa-person-hiking mr-2"></i>Experiences</button>
+                                <button onclick="switchTab('hotels')" id="tab-hotels" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-bed mr-2"></i>Nearby Hotels</button>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-mono hidden sm:block">AI GENERATED (DEMO)</span>
+                        </div>
+                        
+                        <div id="cards-container" class="flex-1 flex items-center gap-4 px-6 overflow-x-auto pb-2 pt-2">
+                            <div class="w-full flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
+                                <i class="fa-solid fa-map-location-dot text-4xl mb-2"></i>
+                                <p class="text-sm font-medium">Ready to plan your journey</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REVIEWS SECTION -->
+                    <div id="reviews-section" class="hidden bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-yellow-400"></i> Hotel Reviews & Ratings
+                            </h3>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider">For current hotel suggestions</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Tap to rate:</p>
+                            <div class="star-rating text-2xl text-yellow-400 cursor-pointer select-none">
+                                <span data-star="5">★</span>
+                                <span data-star="4">★</span>
+                                <span data-star="3">★</span>
+                                <span data-star="2">★</span>
+                                <span data-star="1">★</span>
+                            </div>
+                        </div>
+
+                        <textarea id="reviewInput" class="w-full mt-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 p-2 resize-none h-20" placeholder="Share your experience about the suggested hotels..."></textarea>
+                        <button onclick="submitReview()" class="mt-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow-sm">
+                            Submit Review
+                        </button>
+
+                        <h4 class="mt-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Latest Reviews</h4>
+                        <div id="reviewList" class="mt-2 space-y-2 text-sm max-h-40 overflow-y-auto">
+                            <p class="text-xs text-slate-400">No reviews yet. Be the first to share your thoughts!</p>
+                        </div>
                     </div>
                 </div>
-
-                <div id="intelligence-panel" class="h-40 iq-card rounded-2xl p-4 hidden flex-col gap-2 overflow-y-auto"></div>
             </div>
+        </main>
 
-            <div class="lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden">
-                <div class="flex-1 bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden group">
-                    <div id="map"></div>
-                    <div id="weather-card" class="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-4 py-2 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 z-[400] hidden fade-in">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-orange-50 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-500"><i class="fa-solid fa-sun text-xl"></i></div>
-                            <div><p class="text-xs text-slate-400 font-bold uppercase">Forecast</p><p class="text-sm font-bold text-slate-700 dark:text-white">Loading...</p></div>
-                        </div>
-                    </div>
+        <!-- TRANSLATOR MODAL -->
+        <div id="translator-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+            <div id="translator-backdrop" class="absolute inset-0"></div>
+
+            <div class="modal-panel relative w-full max-w-md mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-language text-blue-500"></i>
+                        Language Translator
+                    </h3>
+                    <button id="translator-close" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
-                <div class="h-64 bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
-                    <div class="px-6 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                        <div class="flex gap-2">
-                            <button onclick="switchTab('activities')" id="tab-activities" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition"><i class="fa-solid fa-person-hiking mr-2"></i>Experiences</button>
-                            <button onclick="switchTab('hotels')" id="tab-hotels" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-bed mr-2"></i>Nearby Hotels</button>
-                        </div>
-                        <span class="text-[10px] text-slate-400 font-mono hidden sm:block">AI GENERATED</span>
-                    </div>
-                    
-                    <div id="cards-container" class="flex-1 flex items-center gap-4 px-6 overflow-x-auto pb-2 pt-2">
-                        <div class="w-full flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
-                            <i class="fa-solid fa-map-location-dot text-4xl mb-2"></i>
-                            <p class="text-sm font-medium">Ready to plan your journey</p>
-                        </div>
-                    </div>
+                <textarea id="inputText" class="w-full text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-200 p-2 resize-none h-24 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Type text to translate..."></textarea>
+                <div class="flex items-center gap-2 mt-2">
+                    <select id="langSelect" class="flex-1 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-200 p-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="Hindi">Hindi</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Kannada">Kannada</option>
+                        <option value="Malayalam">Malayalam</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                    </select>
+                    <button onclick="translateText()" class="text-xs px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm">
+                        Translate
+                    </button>
+                </div>
+                <textarea id="outputText" readonly class="w-full text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 p-2 resize-none h-24 mt-3" placeholder="Translation will appear here"></textarea>
+            </div>
+        </div>
+
+        <!-- GUIDES DASHBOARD MODAL -->
+        <div id="guides-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+            <div id="guides-backdrop" class="absolute inset-0"></div>
+
+            <div class="modal-panel relative w-full max-w-3xl mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-person-hiking text-blue-500"></i>
+                        Local Tourist Guides
+                    </h3>
+                    <button id="guides-close" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Browse suggested guides for your current destination. Ratings and profiles are sample data for demo.
+                </p>
+
+                <div id="guides-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                    <!-- JS renders guides -->
                 </div>
             </div>
         </div>
-    </main>
+
+        <!-- BUDGET PLANNER MODAL -->
+        <div id="budget-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+            <div id="budget-backdrop" class="absolute inset-0"></div>
+
+            <div class="modal-panel relative w-full max-w-xl mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-blue-500"></i>
+                        Trip Budget Estimator
+                    </h3>
+                    <button id="budget-close" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Enter your trip details and your planned budget. Travel IQ will estimate the total cost and tell you if your budget is enough.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 text-sm">
+                    <div class="col-span-1 sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Destination</label>
+                        <input id="budget-destination" type="text" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-sm text-slate-800 dark:text-slate-100" placeholder="e.g. Paris, France">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Trip Duration (days)</label>
+                        <input id="budget-days" type="number" min="1" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-sm text-slate-800 dark:text-slate-100" placeholder="5">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Travelers</label>
+                        <input id="budget-travelers" type="number" min="1" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-sm text-slate-800 dark:text-slate-100" placeholder="2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Trip Style</label>
+                        <select id="budget-style" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-sm text-slate-800 dark:text-slate-100">
+                            <option value="budget">Budget</option>
+                            <option value="mid-range" selected>Mid-range</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Your Total Budget (₹ or $)</label>
+                        <input id="budget-amount" type="number" min="0" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-sm text-slate-800 dark:text-slate-100" placeholder="50000">
+                    </div>
+                </div>
+
+                <button onclick="estimateBudget()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow-sm mb-3">
+                    <i class="fa-solid fa-calculator"></i>
+                    Estimate with AI
+                </button>
+
+                <div id="budget-result" class="text-sm space-y-2">
+                    <p class="text-xs text-slate-400">AI summary will appear here. (Demo, offline)</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ==========================================
-        // 1. CONFIGURATION
-        // ==========================================
-        // 🔴 PASTE YOUR API KEY HERE
-        const GEMINI_API_KEY = "AIzaSyDPhhboUoNxgcVyXuHBf-ijeKFm1l1lEqo"; 
-
+        // =========================
+        // CONFIG & DEMO "AI" (NO APIS)
+        // =========================
         let currentItinerary = [];
         let currentHotels = [];
+        let captchaAnswer = null;
 
-        // ==========================================
-        // 2. THEME & MAP
-        // ==========================================
-        const map = L.map('map').setView([20.5937, 78.9629], 4);
+        // Simple demo AI response (no external API)
+        async function fakeAIResponse(userText) {
+            const city = extractCity(userText);
+
+            return {
+                reply: `✈️ Demo mode: Here is a sample plan for your trip to ${city}. (No live API used)`,
+                location: demoLocations[city] || demoLocations["India"],
+                packing_list: [
+                    "Comfortable clothes",
+                    "Power bank & chargers",
+                    "Basic medicines & first aid",
+                    "Sunscreen & sunglasses",
+                    "Important documents & ID"
+                ],
+                itinerary: [
+                    { title: `${city} City Tour`, price: "₹1500 per person", tag: "Activity", desc: "Guided visit to major landmarks and local spots." },
+                    { title: "Local Food Walk", price: "₹800 per person", tag: "Food", desc: "Try popular street foods and regional dishes." },
+                    { title: "Evening Chill Spot", price: "₹400", tag: "Relax", desc: "Sunset point or popular hangout area for tourists." }
+                ],
+                hotels: [
+                    { title: `${city} Comfort Inn`, price: "₹3200 / night", tag: "Hotel", desc: "3-star stay with breakfast included." },
+                    { title: `${city} Budget Stay`, price: "₹1800 / night", tag: "Hotel", desc: "Clean rooms, Wi-Fi, near city center." },
+                    { title: `${city} Luxury Suites`, price: "₹6500 / night", tag: "Hotel", desc: "Premium rooms, pool access, city view." }
+                ]
+            };
+        }
+
+        const demoLocations = {
+            Goa: { lat: 15.2993, lng: 74.1240, name: "Goa" },
+            Paris: { lat: 48.8566, lng: 2.3522, name: "Paris" },
+            London: { lat: 51.5074, lng: -0.1278, name: "London" },
+            Delhi: { lat: 28.6139, lng: 77.2090, name: "Delhi" },
+            Mumbai: { lat: 19.0760, lng: 72.8777, name: "Mumbai" },
+            Chennai: { lat: 13.0827, lng: 80.2707, name: "Chennai" },
+            India: { lat: 20.5937, lng: 78.9629, name: "India" }
+        };
+
+        function extractCity(text) {
+            const cities = ["Goa", "Paris", "London", "Delhi", "Mumbai", "Chennai", "India"];
+            for (let c of cities) {
+                if (text.toLowerCase().includes(c.toLowerCase())) return c;
+            }
+            return "India";
+        }
+
+        // Reviews
+        let selectedRating = 0;
+        const reviews = [];
+
+        // FAKE TOURIST GUIDES
+        const guideProfiles = [
+            { name: "Arjun Mehta", city: "Delhi, India", languages: ["Hindi", "English"], experience: 5, speciality: "Heritage walks, food tours" },
+            { name: "Lakshmi Nair", city: "Kochi, India", languages: ["Malayalam", "English", "Hindi"], experience: 7, speciality: "Backwater trips, culture tours" },
+            { name: "Ravi Kumar", city: "Hyderabad, India", languages: ["Telugu", "Hindi", "English"], experience: 4, speciality: "City highlights & photography" },
+            { name: "Sara Thomas", city: "Paris, France", languages: ["French", "English"], experience: 6, speciality: "Museums, hidden streets & cafes" },
+            { name: "Meera Subramanian", city: "Chennai, India", languages: ["Tamil", "English"], experience: 8, speciality: "Temple trails, coastal tours" },
+            { name: "Jonas Müller", city: "Berlin, Germany", languages: ["German", "English"], experience: 3, speciality: "History tours, nightlife" }
+        ];
+
+        // =========================
+        // LOGIN + CAPTCHA
+        // =========================
+        const loginScreen = document.getElementById('login-screen');
+        const appRoot = document.getElementById('app-root');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const captchaQuestionEl = document.getElementById('captcha-question');
+        const captchaAnswerEl = document.getElementById('captcha-answer');
+        const captchaRefresh = document.getElementById('captcha-refresh');
+
+        function generateCaptcha() {
+            const a = Math.floor(Math.random() * 9) + 1;
+            const b = Math.floor(Math.random() * 9) + 1;
+            captchaAnswer = a + b;
+            captchaQuestionEl.textContent = `${a} + ${b} = ?`;
+            captchaAnswerEl.value = "";
+        }
+
+        if (captchaRefresh) {
+            captchaRefresh.addEventListener('click', () => {
+                generateCaptcha();
+            });
+        }
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value.trim();
+                const answer = parseInt(captchaAnswerEl.value, 10);
+
+                if (!username || !password) {
+                    loginError.textContent = "Please enter username and password.";
+                    return;
+                }
+                if (isNaN(answer)) {
+                    loginError.textContent = "Please solve the captcha.";
+                    return;
+                }
+                if (answer !== captchaAnswer) {
+                    loginError.textContent = "Captcha incorrect. Try again.";
+                    generateCaptcha();
+                    return;
+                }
+
+                // Success
+                loginError.textContent = "";
+                loginScreen.classList.add('hidden');
+                appRoot.classList.remove('hidden');
+
+                // Init map after the layout is visible
+                setTimeout(() => {
+                    initMap();
+                }, 50);
+            });
+        }
+
+        // Generate first captcha on load
+        generateCaptcha();
+
+        // =========================
+        // THEME & MAP
+        // =========================
+        let map;           
         let tileLayer;
         const lightTiles = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
         const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
-        function setMapTheme(isDark) {
-            if(tileLayer) map.removeLayer(tileLayer);
-            tileLayer = L.tileLayer(isDark ? darkTiles : lightTiles, { attribution: '&copy; OpenStreetMap', maxZoom: 19 }).addTo(map);
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([20.5937, 78.9629], 4);
+            }
+            setMapTheme(document.documentElement.classList.contains('dark'));
+            
+            // Fix Leaflet size issue when container was hidden before
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
         }
-        setMapTheme(false);
+
+        function setMapTheme(isDark) {
+            if (!map) return;
+            if (tileLayer) map.removeLayer(tileLayer);
+            tileLayer = L.tileLayer(
+                isDark ? darkTiles : lightTiles,
+                { attribution: '&copy; OpenStreetMap', maxZoom: 19 }
+            ).addTo(map);
+        }
 
         function toggleTheme() {
             const html = document.documentElement;
@@ -216,38 +613,87 @@
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 icon.className = 'fa-solid fa-moon';
-                setMapTheme(false);
+                if (map) setMapTheme(false);
             } else {
                 html.classList.add('dark');
                 icon.className = 'fa-solid fa-sun';
-                setMapTheme(true);
+                if (map) setMapTheme(true);
             }
         }
 
         let currentMarker = null;
-        const chatForm = document.getElementById('chat-form');
+        const chatFormEl = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
         const chatContainer = document.getElementById('chat-container');
         const cardsContainer = document.getElementById('cards-container');
         const intPanel = document.getElementById('intelligence-panel');
         const weatherCard = document.getElementById('weather-card');
+        const reviewsSection = document.getElementById('reviews-section');
 
-        // ==========================================
-        // 3. AI LOGIC (PRICING + ROUTING)
-        // ==========================================
-        chatForm.addEventListener('submit', async (e) => {
+        // =========================
+        // SIDEBAR NAV BEHAVIOUR
+        // =========================
+        const navHotels = document.getElementById('nav-hotels');
+        navHotels.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchTab('hotels');
+            document.getElementById('tab-hotels').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // Translator modal
+        const navTranslator = document.getElementById('nav-translator');
+        const translatorModal = document.getElementById('translator-modal');
+        const translatorBackdrop = document.getElementById('translator-backdrop');
+        const translatorClose = document.getElementById('translator-close');
+
+        navTranslator.addEventListener('click', (e) => {
+            e.preventDefault();
+            translatorModal.classList.remove('hidden');
+        });
+        translatorClose.addEventListener('click', () => translatorModal.classList.add('hidden'));
+        translatorBackdrop.addEventListener('click', () => translatorModal.classList.add('hidden'));
+
+        // Guides modal
+        const navGuides = document.getElementById('nav-guides');
+        const guidesModal = document.getElementById('guides-modal');
+        const guidesBackdrop = document.getElementById('guides-backdrop');
+        const guidesClose = document.getElementById('guides-close');
+
+        navGuides.addEventListener('click', (e) => {
+            e.preventDefault();
+            renderGuides();
+            guidesModal.classList.remove('hidden');
+        });
+        guidesClose.addEventListener('click', () => guidesModal.classList.add('hidden'));
+        guidesBackdrop.addEventListener('click', () => guidesModal.classList.add('hidden'));
+
+        // Budget modal
+        const navBudget = document.getElementById('nav-budget');
+        const budgetModal = document.getElementById('budget-modal');
+        const budgetBackdrop = document.getElementById('budget-backdrop');
+        const budgetClose = document.getElementById('budget-close');
+
+        navBudget.addEventListener('click', (e) => {
+            e.preventDefault();
+            budgetModal.classList.remove('hidden');
+        });
+        budgetClose.addEventListener('click', () => budgetModal.classList.add('hidden'));
+        budgetBackdrop.addEventListener('click', () => budgetModal.classList.add('hidden'));
+
+        // =========================
+        // CHAT + DEMO AI (NO EXTERNAL API)
+        // =========================
+        chatFormEl.addEventListener('submit', async (e) => {
             e.preventDefault();
             const text = userInput.value.trim();
-            if(!text) return;
+            if (!text) return;
 
             addMessage(text, 'user');
             userInput.value = '';
             showTyping();
 
             try {
-                if(GEMINI_API_KEY.includes("PASTE")) throw new Error("API Key missing.");
-
-                const aiData = await getGeminiResponse(text);
+                const aiData = await fakeAIResponse(text);
                 removeTyping();
 
                 if (aiData.location && aiData.location.lat) {
@@ -268,57 +714,20 @@
             }
         });
 
-        async function getGeminiResponse(prompt) {
-            const MODEL_NAME = "gemini-2.5-pro"; 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
-            
-            // 🔥 Updated Prompt for Pricing
-            const systemPrompt = `
-                You are Travel IQ. Return JSON only.
-                Structure:
-                {
-                    "reply": "Friendly response.",
-                    "location": { "lat": 12.34, "lng": 56.78, "name": "City Name" },
-                    "packing_list": ["Item 1", "Item 2"],
-                    "itinerary": [
-                        { "title": "Place Name", "price": "₹500 / $10", "tag": "Visit", "desc": "Short desc" }
-                    ],
-                    "hotels": [
-                        { "title": "Hotel Name", "price": "₹4000 / $50", "tag": "Hotel", "desc": "Amenities" }
-                    ]
-                }
-                IMPORTANT: Give REALISTIC PRICES for the specific location in local currency.
-            `;
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt + "\n\nUser Input: " + prompt }] }] })
-            });
-
-            const data = await response.json();
-            if(data.error) throw new Error(data.error.message);
-            let raw = data.candidates[0].content.parts[0].text;
-            return JSON.parse(raw.replace(/```json/g, '').replace(/```/g, '').trim());
-        }
-
-        // ==========================================
-        // 4. ROUTING FUNCTION (GPS)
-        // ==========================================
+        // =========================
+        // ROUTING
+        // =========================
         function openRoute(destinationName) {
-            // 1. Try to get user location
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        // Google Maps Direction URL
                         const url = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${encodeURIComponent(destinationName)}&travelmode=driving`;
                         window.open(url, '_blank');
                     },
-                    (error) => {
+                    () => {
                         alert("Location access denied. Opening search instead.");
-                        // Fallback: Just search for the place
                         window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destinationName)}`, '_blank');
                     }
                 );
@@ -327,28 +736,30 @@
             }
         }
 
-        // ==========================================
-        // 5. RENDER CARDS (With Route Button)
-        // ==========================================
+        // =========================
+        // CARDS + TABS
+        // =========================
         function switchTab(tab) {
             const btnAct = document.getElementById('tab-activities');
             const btnHot = document.getElementById('tab-hotels');
             const activeClass = "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
             const inactiveClass = "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800";
             
-            if(tab === 'activities') {
+            if (tab === 'activities') {
                 btnAct.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${activeClass}`;
                 btnHot.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${inactiveClass}`;
                 renderCards(currentItinerary, 'activity');
+                reviewsSection.classList.add('hidden');
             } else {
                 btnHot.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${activeClass}`;
                 btnAct.className = `px-4 py-1.5 rounded-lg text-sm font-bold transition ${inactiveClass}`;
                 renderCards(currentHotels, 'hotel');
+                reviewsSection.classList.remove('hidden');
             }
         }
 
         function renderCards(items, type) {
-            if(!items || items.length === 0) {
+            if (!items || items.length === 0) {
                 cardsContainer.innerHTML = `<div class="w-full text-center text-slate-400 text-sm">No data found. Try asking for a plan!</div>`;
                 return;
             }
@@ -359,20 +770,20 @@
                 let colorClass = type === 'hotel' ? 'text-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'text-blue-600 bg-blue-50 dark:bg-blue-900/20';
 
                 html += `
-                <div class="min-w-[280px] bg-white dark:bg-darkSurface border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:shadow-lg transition cursor-pointer group fade-in" style="animation-delay: ${i*100}ms">
+                <div class="min-w-[280px] bg-white dark:bg-darkSurface border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:shadow-lg card-fade cursor-pointer group fade-in" style="animation-delay: ${i*100}ms">
                     <div class="flex justify-between items-start mb-3">
                         <div class="w-10 h-10 rounded-lg ${colorClass} flex items-center justify-center"><i class="fa-solid ${icon}"></i></div>
-                        <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-1 rounded uppercase tracking-wide">${item.tag}</span>
+                        <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-1 rounded uppercase tracking-wide">${item.tag || (type === 'hotel' ? 'Hotel' : 'Activity')}</span>
                     </div>
-                    <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate">${item.title}</h4>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${item.desc}</p>
+                    <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate">${item.title || 'Untitled'}</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${item.desc || ''}</p>
                     
                     <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
                         <span class="font-bold text-slate-700 dark:text-slate-200 text-sm bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-green-600 dark:text-green-400">
-                            ${item.price}
+                            ${item.price || 'Price on arrival'}
                         </span>
                         
-                        <button onclick="openRoute('${item.title}')" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow-md shadow-blue-500/20">
+                        <button onclick="openRoute('${(item.title || '').replace(/'/g, "\\'")}')" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow-md shadow-blue-500/20">
                             <i class="fa-solid fa-location-arrow"></i> Route
                         </button>
                     </div>
@@ -381,7 +792,9 @@
             cardsContainer.innerHTML = html;
         }
 
-        // Helpers
+        // =========================
+        // CHAT HELPERS
+        // =========================
         function addMessage(text, sender) {
             const div = document.createElement('div');
             div.className = `flex items-start gap-3 fade-in ${sender === 'user' ? 'flex-row-reverse' : ''}`;
@@ -389,29 +802,288 @@
                 ? `bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 shadow-sm`
                 : `bg-blue-600 text-white shadow-md shadow-blue-500/20`;
             div.innerHTML = `<div class="w-8 h-8 rounded-lg ${sender==='ai'?'iq-gradient':'bg-slate-200 dark:bg-slate-700'} flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid ${sender==='ai'?'fa-brain':'fa-user'}"></i></div><div class="${bubble} p-3 rounded-2xl ${sender==='user'?'rounded-tr-none':'rounded-tl-none'} text-sm max-w-[85%]">${text}</div>`;
-            chatContainer.appendChild(div); chatContainer.scrollTop = chatContainer.scrollHeight;
+            chatContainer.appendChild(div); 
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function renderWidgets(data) {
-            intPanel.classList.remove('hidden'); intPanel.classList.add('flex');
+            intPanel.classList.remove('hidden'); 
+            intPanel.classList.add('flex');
             intPanel.innerHTML = `<h4 class="text-xs font-bold text-slate-400 uppercase mb-1 sticky top-0 bg-white dark:bg-darkSurface z-10">Trip Intelligence</h4>`;
-            if(data.packing_list) intPanel.innerHTML += `<div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-3 rounded-xl text-sm text-indigo-900 dark:text-indigo-200"><div class="font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-suitcase"></i> Smart Packing</div><ul class="text-xs space-y-1 pl-1">${data.packing_list.map(i => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500 text-xs"></i> ${i}</li>`).join('')}</ul></div>`;
+            if (data.packing_list) {
+                intPanel.innerHTML += `
+                    <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-3 rounded-xl text-sm text-indigo-900 dark:text-indigo-200">
+                        <div class="font-bold mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-suitcase"></i> Smart Packing
+                        </div>
+                        <ul class="text-xs space-y-1 pl-1">
+                            ${data.packing_list.map(i => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500 text-xs"></i> ${i}</li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
         }
 
         function updateMap(loc) {
+            if (!map) initMap();
             map.flyTo([loc.lat, loc.lng], 13, { duration: 2 });
-            if(currentMarker) map.removeLayer(currentMarker);
-            currentMarker = L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`<b class="text-slate-800">${loc.name}</b>`).openPopup();
+            if (currentMarker) map.removeLayer(currentMarker);
+            currentMarker = L.marker([loc.lat, loc.lng])
+                .addTo(map)
+                .bindPopup(`<b class="text-slate-800">${loc.name}</b>`)
+                .openPopup();
         }
 
         function showTyping() {
-            const div = document.createElement('div'); div.id = 'typing'; div.className = 'flex items-start gap-3 fade-in';
-            div.innerHTML = `<div class="w-8 h-8 rounded-lg iq-gradient flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-brain"></i></div><div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none flex gap-1.5 shadow-sm"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div><div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div><div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div></div>`;
-            chatContainer.appendChild(div); chatContainer.scrollTop = chatContainer.scrollHeight;
+            const div = document.createElement('div'); 
+            div.id = 'typing'; 
+            div.className = 'flex items-start gap-3 fade-in';
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-lg iq-gradient flex items-center justify-center text-white text-xs shrink-0">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none flex gap-1.5 shadow-sm">
+                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full typing-dot"></div>
+                </div>`;
+            chatContainer.appendChild(div); 
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        function removeTyping() { const el = document.getElementById('typing'); if(el) el.remove(); }
-        function clearChat() { chatContainer.innerHTML = ''; addMessage("System Ready. Where to? 🚀", 'ai'); intPanel.innerHTML = ''; intPanel.classList.add('hidden'); }
+        function removeTyping() { 
+            const el = document.getElementById('typing'); 
+            if (el) el.remove(); 
+        }
+
+        function clearChat() { 
+            chatContainer.innerHTML = ''; 
+            addMessage("System Ready (Demo mode, no external APIs). Where to? 🚀", 'ai'); 
+            intPanel.innerHTML = ''; 
+            intPanel.classList.add('hidden'); 
+        }
+
+        // =========================
+        // TRANSLATOR LOGIC (DEMO, NO API)
+        // =========================
+        function translateText() {
+            const inputEl = document.getElementById('inputText');
+            const outputEl = document.getElementById('outputText');
+            const langEl = document.getElementById('langSelect');
+
+            if (!inputEl || !outputEl || !langEl) {
+                console.warn("Translator elements not found in DOM.");
+                return;
+            }
+
+            const text = inputEl.value.trim();
+            const targetLang = langEl.value;
+
+            if (!text) {
+                outputEl.value = "Please enter text to translate.";
+                return;
+            }
+
+            const prefixes = {
+                Hindi: "अनुवाद",
+                Telugu: "అనువాదం",
+                Tamil: "மொழிபெயர்ப்பு",
+                Kannada: "ಅನುವಾದ",
+                Malayalam: "പരിഭാഷ",
+                French: "Traduction",
+                German: "Übersetzung"
+            };
+
+            const label = prefixes[targetLang] || "Translation";
+            outputEl.value = `${label}: ${text}`;
+        }
+
+        // =========================
+        // GUIDES RENDERING
+        // =========================
+        function renderGuides() {
+            const container = document.getElementById('guides-list');
+            if (!container) return;
+
+            const cards = guideProfiles.map((g) => {
+                const rating = (Math.random() * 1.5 + 3.5).toFixed(1);
+                const fullStars = Math.round(rating);
+                const stars = "★".repeat(fullStars) + "☆".repeat(5 - fullStars);
+
+                return `
+                <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3 bg-slate-50/60 dark:bg-slate-900/60 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 leading-tight">${g.name}</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">${g.city}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-yellow-400 leading-none">${stars}</div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">${rating}/5 rating</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-300">
+                        Languages: <span class="font-medium">${g.languages.join(", ")}</span>
+                    </p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-300">
+                        Experience: <span class="font-medium">${g.experience}+ years</span>
+                    </p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-300">
+                        Speciality: <span class="font-medium">${g.speciality}</span>
+                    </p>
+                    <div class="mt-2 flex items-center justify-between gap-2">
+                        <button class="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-[11px] text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            View Profile
+                        </button>
+                        <button class="flex-1 px-2 py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-semibold hover:bg-blue-700">
+                            Book Now
+                        </button>
+                    </div>
+                </div>`;
+            }).join("");
+
+            container.innerHTML = cards;
+        }
+
+        // =========================
+        // BUDGET ESTIMATOR (DEMO, NO API)
+        // =========================
+        function estimateBudget() {
+            const dest = document.getElementById('budget-destination').value.trim();
+            const days = parseInt(document.getElementById('budget-days').value, 10);
+            const travelers = parseInt(document.getElementById('budget-travelers').value, 10);
+            const style = document.getElementById('budget-style').value;
+            const amount = parseFloat(document.getElementById('budget-amount').value);
+            const resultBox = document.getElementById('budget-result');
+
+            if (!dest || !days || !travelers || !amount) {
+                resultBox.innerHTML = `<p class="text-xs text-red-500">Please fill all fields (destination, days, travelers, budget).</p>`;
+                return;
+            }
+
+            let costPerDay;
+            if (style === "budget") costPerDay = 1500;
+            else if (style === "mid-range") costPerDay = 2500;
+            else costPerDay = 4500;
+
+            const estimatedTotal = costPerDay * days * travelers;
+            const perPerson = estimatedTotal / travelers;
+            const withinBudget = amount >= estimatedTotal;
+
+            const statusColor = withinBudget ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
+            const statusLabel = withinBudget ? "Within Budget" : "Over Budget";
+            const comment = withinBudget
+                ? "Your budget is sufficient for this plan. You can even add a few extra activities."
+                : "Budget seems tight. Consider reducing trip days, choosing cheaper stay, or travelling off-season.";
+
+            resultBox.innerHTML = `
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/60 p-3">
+                    <p class="text-xs text-slate-500 dark:text-slate-300 mb-1">
+                        Demo estimate for a ${days}-day ${style} trip to ${dest} for ${travelers} traveler(s).
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3 mb-2">
+                        <div>
+                            <p class="text-[11px] text-slate-500">Estimated Total</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">₹${estimatedTotal.toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-500">Per Person</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">₹${Math.round(perPerson).toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-500">Status</p>
+                            <p class="text-sm font-semibold ${statusColor}">${statusLabel}</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mb-2">${comment}</p>
+
+                    <div class="mb-2">
+                        <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Rough Breakdown (per trip)</p>
+                        <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-0.5">
+                            <li class="flex justify-between"><span>Stay & accommodation</span><span class="font-medium">₹${Math.round(estimatedTotal * 0.45).toLocaleString()}</span></li>
+                            <li class="flex justify-between"><span>Food & drinks</span><span class="font-medium">₹${Math.round(estimatedTotal * 0.25).toLocaleString()}</span></li>
+                            <li class="flex justify-between"><span>Local transport</span><span class="font-medium">₹${Math.round(estimatedTotal * 0.15).toLocaleString()}</span></li>
+                            <li class="flex justify-between"><span>Activities & extras</span><span class="font-medium">₹${Math.round(estimatedTotal * 0.15).toLocaleString()}</span></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Saving Tips</p>
+                        <ul class="text-xs text-slate-600 dark:text-slate-300 list-disc ml-4 space-y-0.5">
+                            <li>Travel during weekdays or off-season to get cheaper hotels and flights.</li>
+                            <li>Use public transport or shared cabs for local travel.</li>
+                            <li>Pre-book stays and activities online to grab discounts.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // =========================
+        // REVIEWS
+        // =========================
+        const starEls = document.querySelectorAll('#reviews-section .star-rating [data-star]');
+        starEls.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = Number(star.getAttribute('data-star'));
+                updateStarUI();
+            });
+        });
+
+        function updateStarUI() {
+            starEls.forEach(star => {
+                const value = Number(star.getAttribute('data-star'));
+                if (value <= selectedRating) {
+                    star.classList.add('opacity-100');
+                    star.classList.remove('opacity-40');
+                } else {
+                    star.classList.add('opacity-40');
+                    star.classList.remove('opacity-100');
+                }
+            });
+        }
+
+        function submitReview() {
+            const reviewInput = document.getElementById('reviewInput');
+            const text = reviewInput.value.trim();
+            if (!selectedRating) {
+                alert("Please select a star rating.");
+                return;
+            }
+            if (!text) {
+                alert("Please write a review.");
+                return;
+            }
+
+            const review = {
+                rating: selectedRating,
+                text,
+                time: new Date().toLocaleString()
+            };
+            reviews.unshift(review);
+            reviewInput.value = '';
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewList');
+            if (reviews.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet. Be the first to share your thoughts!</p>`;
+                return;
+            }
+
+            container.innerHTML = reviews.map(r => `
+                <div class="border border-slate-100 dark:border-slate-700 rounded-lg p-2">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-yellow-400 text-xs">${'★'.repeat(r.rating)}<span class="text-slate-400 dark:text-slate-500 ml-1 text-[10px]">(${r.rating}/5)</span></span>
+                        <span class="text-[10px] text-slate-400">${r.time}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 dark:text-slate-200">${r.text}</p>
+                </div>
+            `).join('');
+        }
+
+        updateStarUI();
+        renderReviews();
     </script>
 </body>
 </html>
